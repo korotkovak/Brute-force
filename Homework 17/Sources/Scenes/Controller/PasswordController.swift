@@ -17,6 +17,8 @@ final class PasswordController: UIViewController {
 
     private var isStartPasswordGeneration = true
 
+    // MARK: - Observers
+
     var isBlack: Bool = false {
         didSet {
             if isBlack {
@@ -32,8 +34,6 @@ final class PasswordController: UIViewController {
             }
         }
     }
-
-    // MARK: - Observers
 
     var observerLabel: String = "" {
         didSet {
@@ -76,7 +76,9 @@ final class PasswordController: UIViewController {
     }
 
     private func setupAction() {
-        passwordView.passwordEntryButton.addTarget(self, action: #selector(startPasswordGenerationButton), for: .touchUpInside)
+        passwordView.passwordEntryButton.addTarget(self,
+                                                   action: #selector(startPasswordGenerationButton),
+                                                   for: .touchUpInside)
         passwordView.stopButton.addTarget(self, action: #selector(stopPasswordGenerationButton), for: .touchUpInside)
         passwordView.changeViewBackgroundButton.addTarget(self, action: #selector(changeViewBackgroundColor), for: .touchUpInside)
     }
@@ -88,6 +90,8 @@ final class PasswordController: UIViewController {
     }
 
     @objc private func startPasswordGenerationButton() {
+        passwordView.passwordEntryButton.isEnabled = false
+        
         guard let password = passwordView.passwordTF.text else { return }
         guard password != "" else { return }
 
@@ -102,6 +106,7 @@ final class PasswordController: UIViewController {
     }
 
     @objc private func stopPasswordGenerationButton() {
+        passwordView.passwordEntryButton.isEnabled = true
         isStartPasswordGeneration = false
         passwordView.activityIndicator.stopAnimating()
 
@@ -134,13 +139,19 @@ final class PasswordController: UIViewController {
         while password != passwordToUnlock {
             if isStartPasswordGeneration {
                 password = generateBruteForce(password, fromArray: allowedCharacters)
-                observerLabel = password
+
+                DispatchQueue.main.async {
+                    self.observerLabel = password
+                }
+
+//                observerLabel = password
 
                 if password == passwordToUnlock {
                     observerTitleLabel = "Пароль взломан \(password)"
                     observerLabel = ""
 
                     DispatchQueue.main.async {
+                        self.passwordView.passwordEntryButton.isEnabled = true
                         self.passwordView.activityIndicator.stopAnimating()
                         self.passwordView.passwordTF.isSecureTextEntry = false
                     }
