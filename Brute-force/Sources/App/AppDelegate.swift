@@ -1,6 +1,6 @@
 //
 //  AppDelegate.swift
-//  Homework 17
+//  Brute-force
 //
 //  Created by Kristina Korotkova on 13/02/23.
 //
